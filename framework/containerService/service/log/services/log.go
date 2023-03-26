@@ -4,10 +4,11 @@ import (
 	"context"
 	"io"
 	pkgLog "log"
+	"time"
+
 	"github.com/tianzhaocn/skyscraper/framework"
 	"github.com/tianzhaocn/skyscraper/framework/containerService/contract"
 	"github.com/tianzhaocn/skyscraper/framework/containerService/service/log/formatter"
-	"time"
 )
 
 // Log 的通用实例
@@ -43,17 +44,17 @@ func (log *Log) logf(level contract.LogLevel, ctx context.Context, msg string, f
 		}
 	}
 
-	// 如果绑定了trace服务，获取trace信息
-	if log.c.IsBind(contract.TraceKey) {
-		tracer := log.c.MustMake(contract.TraceKey).(contract.Trace)
-		tc := tracer.GetTrace(ctx)
-		if tc != nil {
-			maps := tracer.ToMap(tc)
-			for k, v := range maps {
-				fs[k] = v
-			}
-		}
-	}
+	// // 如果绑定了trace服务，获取trace信息
+	// if log.c.IsBind(contract.TraceKey) {
+	// 	tracer := log.c.MustMake(contract.TraceKey).(contract.Trace)
+	// 	tc := tracer.GetTrace(ctx)
+	// 	if tc != nil {
+	// 		maps := tracer.ToMap(tc)
+	// 		for k, v := range maps {
+	// 			fs[k] = v
+	// 		}
+	// 	}
+	// }
 
 	// 将日志信息按照formatter序列化为字符串
 	if log.formatter == nil {

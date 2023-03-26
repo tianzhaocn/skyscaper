@@ -1,68 +1,62 @@
 package demo
 
 import (
-	"github.com/gohade/hade/framework/contract"
-	"github.com/gohade/hade/framework/gin"
-	"skyscraper/app/provider/demo"
+	"fmt"
+	"strconv"
+
+	"github.com/tianzhaocn/skyscraper/app/http/middleware"
+	"github.com/tianzhaocn/skyscraper/app/provider/demoservice"
+	"github.com/tianzhaocn/skyscraper/framework"
+	"github.com/tianzhaocn/skyscraper/framework/containerService/contract"
+	"gorm.io/gorm"
 )
 
 type DemoApi struct {
-	service *Service
+	dbServie   *gorm.DB
+	logService contract.Log
+	myServiece demoservice.MyService
 }
 
-func Register(r *gin.Engine) error {
-	api := NewDemoApi()
-	r.Bind(&demo.DemoProvider{})
-
-	r.GET("/demo/demo", api.Demo)
-	r.GET("/demo/demo2", api.Demo2)
-	r.POST("/demo/demo_post", api.DemoPost)
+func Register(c *framework.Core) error {
+	api := NewDemoApi(c)
+	c.Use(middleware.Mydemo())
+	c.Get("/", api.Hello)
+	c.Get("/echo/:id", api.Echo)
+	c.Get("/users", api.GetUsers)
 	return nil
 }
 
-func NewDemoApi() *DemoApi {
-	service := NewService()
-	return &DemoApi{service: service}
-}
-
-// Demo godoc
-// @Summary 获取所有用户
-// @Description 获取所有用户
-// @Produce  json
-// @Tags demo
-// @Success 200 array []UserDTO
-// @Router /demo/demo [get]
-func (api *DemoApi) Demo(c *gin.Context) {
-	appService := c.MustMake(contract.AppKey).(contract.App)
-	baseFolder := appService.BaseFolder()
-	//users := api.service.GetUsers()
-	//usersDTO := UserModelsToUserDTOs(users)
-	//c.JSON(200, usersDTO)
-	c.JSON(200, baseFolder)
-}
-
-// Demo godoc
-// @Summary 获取所有学生
-// @Description 获取所有学生
-// @Produce  json
-// @Tags demo
-// @Success 200 array []UserDTO
-// @Router /demo/demo2 [get]
-func (api *DemoApi) Demo2(c *gin.Context) {
-	demoProvider := c.MustMake(demo.DemoKey).(demo.IService)
-	students := demoProvider.GetAllStudent()
-	usersDTO := StudentsToUserDTOs(students)
-	c.JSON(200, usersDTO)
-}
-
-func (api *DemoApi) DemoPost(c *gin.Context) {
-	type Foo struct {
-		Name string
+func NewDemoApi(c *framework.Core) *DemoApi {
+	db, _ := c.MustMake(contract.ORMKey).(contract.ORMService).GetDB()
+	return &DemoApi{
+		dbServie:   db,
+		logService: c.MustMake(contract.LogKey).(contract.Log),
+		myServiece: c.MustMake(demoservice.DemoKey).(demoservice.MyService),
 	}
-	foo := &Foo{}
-	err := c.BindJSON(&foo)
-	if err != nil {
-		c.AbortWithError(500, err)
-	}
-	c.JSON(200, nil)
+}
+
+func (api *DemoApi) Hello(c *framework.Context) error {
+	fmt.Println("HELLO")
+	c.HtmlAfile("skyscraper", "app/http/module/demo/skyscraper.html", map[string]string{
+		"Version": "1.0.0",
+	})
+	return nil
+}
+
+func (api *DemoApi) Echo(c *framework.Context) error {
+	api.myServiece.SayHello()
+	id, _ := c.ParamInt("id", 0)
+	c.SetOKStatus().Json("your id is :" + strconv.Itoa(id))
+	api.myServiece.SayByeBye()
+	return nil
+
+}
+
+func (api *DemoApi) GetUsers(c *framework.Context) error {
+	users := []UserModel{}
+	api.dbServie.Find(&users)
+	c.SetOKStatus().Json(users)
+	api.logService.Info(c, "get users", map[string]interface{}{"result": "ok"})
+	return nil
+
 }

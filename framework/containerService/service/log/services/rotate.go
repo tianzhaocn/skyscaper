@@ -2,15 +2,17 @@ package services
 
 import (
 	"fmt"
-	"github.com/gohade/hade/framework/util"
+
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/tianzhaocn/skyscraper/framework/containerService/contract"
+	"github.com/tianzhaocn/skyscraper/framework/utils"
 
-	"github.com/pkg/errors"
 	"os"
 	"path/filepath"
-	"github.com/tianzhaocn/skyscraper/framework"
 	"time"
+
+	"github.com/pkg/errors"
+	"github.com/tianzhaocn/skyscraper/framework"
 )
 
 // RotateLog 代表会进行切割的日志文件存储
@@ -40,7 +42,7 @@ func NewRotateLog(params ...interface{}) (interface{}, error) {
 		folder = configService.GetString("log.folder")
 	}
 	// 如果folder不存在，则创建
-	if !util.Exists(folder) {
+	if !utils.Exists(folder) {
 		os.MkdirAll(folder, os.ModePerm)
 	}
 

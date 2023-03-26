@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 	"github.com/tianzhaocn/skyscraper/framework"
 	"github.com/tianzhaocn/skyscraper/framework/containerService/contract"
-	"sync"
+	"github.com/funny/debug/sync"
 	"time"
 )
 

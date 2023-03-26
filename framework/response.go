@@ -5,8 +5,10 @@ import (
 	"encoding/xml"
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 )
 
 // IResponse IResponse代表返回方法
@@ -93,16 +95,70 @@ func (ctx *Context) Html(file string, obj interface{}) IResponse {
 	// 读取模版文件，创建template实例
 	t, err := template.New("output").ParseFiles(file)
 	if err != nil {
+		fmt.Println(err)
 		return ctx
 	}
 	// 执行Execute方法将obj和模版进行结合
 	if err := t.Execute(ctx.responseWriter, obj); err != nil {
+		fmt.Println(err)
 		return ctx
 	}
 
 	ctx.SetHeader("Content-Type", "application/html")
 	return ctx
 }
+
+// Html html输出
+func (ctx *Context) HtmlString(name string, content string) IResponse {
+	t, err := template.New(name).Parse(content)
+	if err != nil {
+		fmt.Println(err)
+	}
+	data := map[string]string{
+		"Version": "1.0.0",
+	}
+	err = t.Execute(ctx.responseWriter, data)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	ctx.SetHeader("Content-Type", "application/html; charset=utf8")
+
+	return ctx
+}
+
+func (ctx *Context) HtmlAfile(name string, file string, data interface{}) IResponse {
+	content,err := os.ReadFile(file)
+	if err != nil {
+		fmt.Println(err)
+	}
+	t, err := template.New(name).Parse(string(content))
+	if err != nil {
+		fmt.Println(err)
+	}
+	
+	err = t.Execute(ctx.responseWriter, data)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	ctx.SetHeader("Content-Type", "application/html; charset=utf8")
+
+	return ctx
+}
+
+
+func (ctx *Context) Picture(file string) IResponse {
+	fileBytes, err := ioutil.ReadFile(file)
+	if err != nil {
+		fmt.Println(err)
+	}
+	ctx.SetHeader("Content-Type", "application/octet-stream")
+	ctx.responseWriter.Write(fileBytes)
+	return ctx
+
+}
+
 
 // Text string
 func (ctx *Context) Text(format string, values ...interface{}) IResponse {

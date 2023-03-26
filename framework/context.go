@@ -3,8 +3,9 @@ package framework
 import (
 	"context"
 	"net/http"
-	"sync"
 	"time"
+
+	"github.com/funny/debug/sync"
 )
 
 // Context Context代表当前请求上下文

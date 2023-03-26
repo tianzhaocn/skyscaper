@@ -2,26 +2,28 @@ package command
 
 import (
 	"fmt"
-	"github.com/fsnotify/fsnotify"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"syscall"
+	"time"
+
+	"github.com/fsnotify/fsnotify"
 	"github.com/tianzhaocn/skyscraper/framework"
 	"github.com/tianzhaocn/skyscraper/framework/cobra"
 	"github.com/tianzhaocn/skyscraper/framework/containerService/contract"
 	"github.com/tianzhaocn/skyscraper/framework/utils"
-	"time"
 )
 
 // devConfig 代表调试模式的配置信息
 type devConfig struct {
-	Port    string // 调试模式最终监听的端口，默认为8070
+	Port    string   // 调试模式最终监听的端口，默认为8088
 	Backend struct { // 后端调试模式配置
 		RefreshTime   int    // 调试模式后端更新时间，如果文件变更，等待3s才进行一次更新，能让频繁保存变更更为顺畅, 默认1s
-		Port          string // 后端监听端口， 默认 8072
+		Port          string // 后端监听端口， 默认 8000
 		MonitorFolder string // 监听文件夹，默认为AppFolder
 	}
 	//Frontend struct { // 前端调试模式配置
@@ -32,14 +34,14 @@ type devConfig struct {
 // 初始化配置文件
 func initDevConfig(c framework.Container) *devConfig {
 	devConfig := &devConfig{
-		Port: "8087",
+		Port: "8088",
 		Backend: struct {
 			RefreshTime   int
 			Port          string
 			MonitorFolder string
 		}{
 			1,
-			"8072",
+			"8000",
 			"",
 		},
 		//Frontend: struct {
@@ -153,10 +155,10 @@ func (p *Proxy) restartBackend() error {
 	// 杀死之前的进程
 	if p.backendPid != 0 {
 		//TODO windows 杀死进程的实现
-		//syscall.Kill(p.backendPid, syscall.SIGKILL)
-		if err := utils.KillWindows(p.backendPid); err != nil {
-			return err
-		}
+		syscall.Kill(p.backendPid, syscall.SIGKILL)
+		// if err := utils.KillWindows(p.backendPid); err != nil {
+		// 	return err
+		// }
 		p.backendPid = 0
 	}
 

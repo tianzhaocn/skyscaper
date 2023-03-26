@@ -3,20 +3,21 @@ package config
 import (
 	"bytes"
 	"fmt"
-	"github.com/fsnotify/fsnotify"
-	"github.com/mitchellh/mapstructure"
-	"github.com/pkg/errors"
-	"github.com/spf13/cast"
-	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
+	"time"
+
+	"github.com/fsnotify/fsnotify"
+	"github.com/funny/debug/sync"
+	"github.com/mitchellh/mapstructure"
+	"github.com/pkg/errors"
+	"github.com/spf13/cast"
 	"github.com/tianzhaocn/skyscraper/framework"
 	"github.com/tianzhaocn/skyscraper/framework/containerService/contract"
-	"strings"
-	"sync"
-	"time"
+	"gopkg.in/yaml.v3"
 )
 
 // Config  表示hade框架的配置文件服务

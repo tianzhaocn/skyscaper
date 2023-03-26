@@ -36,7 +36,7 @@ func RunCommand(container framework.Container) error {
 	return rootCmd.Execute()
 }
 
-// AddAppCommand 绑定业务的命令
+// 你的业务命令
 func AddAppCommand(rootCmd *cobra.Command) {
-
+	rootCmd.AddCommand(command.DemoCommand)
 }

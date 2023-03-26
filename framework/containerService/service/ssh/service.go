@@ -2,10 +2,11 @@ package ssh
 
 import (
 	"context"
-	"golang.org/x/crypto/ssh"
+
+	"github.com/funny/debug/sync"
 	"github.com/tianzhaocn/skyscraper/framework"
 	"github.com/tianzhaocn/skyscraper/framework/containerService/contract"
-	"sync"
+	"golang.org/x/crypto/ssh"
 )
 
 // SSH代表hade框架的ssh实现

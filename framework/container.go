@@ -3,7 +3,8 @@ package framework
 import (
 	"errors"
 	"fmt"
-	"sync"
+
+	"github.com/funny/debug/sync"
 )
 
 // Container 是一个服务容器，提供绑定服务和获取服务的功能
@@ -26,7 +27,7 @@ type Container interface {
 
 // SkyscraperContainer 是服务容器的具体实现
 type SkyscraperContainer struct {
-	Container
+
 	// providers 存储注册的服务提供者，key为字符串凭证
 	providers map[string]ServiceProvider
 	// instance 存储具体的实例，key为字符串凭证
@@ -59,10 +60,11 @@ func (Skyscraper *SkyscraperContainer) PrintProviders() []string {
 // Bind 将服务容器和关键字做了绑定
 func (Skyscraper *SkyscraperContainer) Bind(provider ServiceProvider) error {
 	Skyscraper.lock.Lock()
-	defer Skyscraper.lock.Unlock()
+
 	key := provider.Name()
 
 	Skyscraper.providers[key] = provider
+	Skyscraper.lock.Unlock()
 
 	// if service is not defer
 	if provider.IsDefer() == false {

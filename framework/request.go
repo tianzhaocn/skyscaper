@@ -5,10 +5,11 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"errors"
-	"github.com/spf13/cast"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
+
+	"github.com/spf13/cast"
 )
 
 const defaultMultipartMemory = 32 << 20 // 32 MB
@@ -223,6 +224,16 @@ func (ctx *Context) FormAll() map[string][]string {
 	return map[string][]string{}
 }
 
+func (ctx *Context) FormInt(key string, def int) (int, bool) {
+	params := ctx.FormAll()
+	if vals, ok := params[key]; ok {
+		if len(vals) > 0 {
+			return cast.ToInt(vals[0]), true
+		}
+	}
+	return def, false
+}
+
 func (ctx *Context) FormInt64(key string, def int64) (int64, bool) {
 	params := ctx.FormAll()
 	if vals, ok := params[key]; ok {
@@ -258,6 +269,16 @@ func (ctx *Context) FormBool(key string, def bool) (bool, bool) {
 	if vals, ok := params[key]; ok {
 		if len(vals) > 0 {
 			return cast.ToBool(vals[0]), true
+		}
+	}
+	return def, false
+}
+
+func (ctx *Context) FormString(key string, def string) (string, bool) {
+	params := ctx.FormAll()
+	if vals, ok := params[key]; ok {
+		if len(vals) > 0 {
+			return vals[0], true
 		}
 	}
 	return def, false

@@ -2,14 +2,17 @@ package command
 
 import (
 	"fmt"
-	"github.com/erikdubbelboer/gspt"
 	"os"
 	"path/filepath"
+	"strconv"
+	"syscall"
+	"time"
+
+	"github.com/erikdubbelboer/gspt"
+	"github.com/sevlyar/go-daemon"
 	"github.com/tianzhaocn/skyscraper/framework/cobra"
 	"github.com/tianzhaocn/skyscraper/framework/containerService/contract"
 	"github.com/tianzhaocn/skyscraper/framework/utils"
-	"strconv"
-	"time"
 )
 
 var cronDaemon = false
@@ -69,47 +72,47 @@ var cronStartCommand = &cobra.Command{
 		pidFolder := appService.RuntimeFolder()
 		serverPidFile := filepath.Join(pidFolder, "cron.pid")
 
-		//logFolder := appService.LogFolder()
-		//serverLogFile := filepath.Join(logFolder, "cron.log")
-		//currentFolder := appService.BaseFolder()
-		//
+		logFolder := appService.LogFolder()
+		serverLogFile := filepath.Join(logFolder, "cron.log")
+		currentFolder := appService.BaseFolder()
+
 		//TODO 解决win支持deamon模式
-		//// deamon 模式
-		//if cronDaemon {
-		//	// 创建一个Context
-		//	cntxt := &daemon.Context{
-		//		// 设置pid文件
-		//		PidFileName: serverPidFile,
-		//		PidFilePerm: 0664,
-		//		// 设置日志文件
-		//		LogFileName: serverLogFile,
-		//		LogFilePerm: 0640,
-		//		// 设置工作路径
-		//		WorkDir: currentFolder,
-		//		// 设置所有设置文件的mask，默认为750
-		//		Umask: 027,
-		//		// 子进程的参数，按照这个参数设置，子进程的命令为 ./hade cron start --daemon=true
-		//		Args: []string{"", "cron", "start", "--daemon=true"},
-		//	}
-		//	// 启动子进程，d不为空表示当前是父进程，d为空表示当前是子进程
-		//	d, err := cntxt.Reborn()
-		//	if err != nil {
-		//		return err
-		//	}
-		//	if d != nil {
-		//		// 父进程直接打印启动成功信息，不做任何操作
-		//		fmt.Println("cron serve started, pid:", d.Pid)
-		//		fmt.Println("log file:", serverLogFile)
-		//		return nil
-		//	}
-		//
-		//	// 子进程执行Cron.Run
-		//	defer cntxt.Release()
-		//	fmt.Println("daemon started")
-		//	gspt.SetProcTitle("hade cron")
-		//	c.Root().Cron.Run()
-		//	return nil
-		//}
+		// deamon 模式
+		if cronDaemon {
+			// 创建一个Context
+			cntxt := &daemon.Context{
+				// 设置pid文件
+				PidFileName: serverPidFile,
+				PidFilePerm: 0664,
+				// 设置日志文件
+				LogFileName: serverLogFile,
+				LogFilePerm: 0640,
+				// 设置工作路径
+				WorkDir: currentFolder,
+				// 设置所有设置文件的mask，默认为750
+				Umask: 027,
+				// 子进程的参数，按照这个参数设置，子进程的命令为 ./hade cron start --daemon=true
+				Args: []string{"", "cron", "start", "--daemon=true"},
+			}
+			// 启动子进程，d不为空表示当前是父进程，d为空表示当前是子进程
+			d, err := cntxt.Reborn()
+			if err != nil {
+				return err
+			}
+			if d != nil {
+				// 父进程直接打印启动成功信息，不做任何操作
+				fmt.Println("cron serve started, pid:", d.Pid)
+				fmt.Println("log file:", serverLogFile)
+				return nil
+			}
+
+			// 子进程执行Cron.Run
+			defer cntxt.Release()
+			fmt.Println("daemon started")
+			gspt.SetProcTitle("hade cron")
+			c.Root().Cron.Run()
+			return nil
+		}
 
 		// not deamon mode
 		fmt.Println("start cron job")
@@ -148,16 +151,16 @@ var cronRestartCommand = &cobra.Command{
 			}
 			if utils.CheckProcessExist(pid) {
 
-				//if err := syscall.Kill(pid, syscall.SIGTERM); err != nil {
-				//	return err
-				//}
-
-				if err := utils.KillWindows(pid); err != nil {
+				if err := syscall.Kill(pid, syscall.SIGTERM); err != nil {
 					return err
 				}
+
+				// if err := utils.KillWindows(pid); err != nil {
+				// 	return err
+				// }
 				// check process closed
 				for i := 0; i < 10; i++ {
-					if utils.CheckProcessExist(pid) == false {
+					if !utils.CheckProcessExist(pid) {
 						break
 					}
 					time.Sleep(1 * time.Second)
@@ -192,12 +195,12 @@ var cronStopCommand = &cobra.Command{
 				return err
 			}
 
-			//if err := syscall.Kill(pid, syscall.SIGTERM); err != nil {
-			//	return err
-			//}
-			if err := utils.KillWindows(pid); err != nil {
+			if err := syscall.Kill(pid, syscall.SIGTERM); err != nil {
 				return err
 			}
+			// if err := utils.KillWindows(pid); err != nil {
+			// 	return err
+			// }
 			if err := os.WriteFile(serverPidFile, []byte{}, 0644); err != nil {
 				return err
 			}

@@ -4,23 +4,24 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/pkg/sftp"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
+	"time"
+
+	"github.com/pkg/sftp"
 	"github.com/tianzhaocn/skyscraper/framework"
 	"github.com/tianzhaocn/skyscraper/framework/cobra"
 	"github.com/tianzhaocn/skyscraper/framework/containerService/contract"
 	"github.com/tianzhaocn/skyscraper/framework/containerService/service/ssh"
 	"github.com/tianzhaocn/skyscraper/framework/utils"
-	"strings"
-	"time"
 )
 
 // initDeployCommand 为自动化部署的命令
 func initDeployCommand() *cobra.Command {
-	deployCommand.AddCommand(deployFrontendCommand)
+	//deployCommand.AddCommand(deployFrontendCommand)
 	deployCommand.AddCommand(deployBackendCommand)
 	deployCommand.AddCommand(deployAllCommand)
 	deployCommand.AddCommand(deployRollbackCommand)
@@ -39,28 +40,28 @@ var deployCommand = &cobra.Command{
 	},
 }
 
-// deployFrontendCommand 部署前端
-var deployFrontendCommand = &cobra.Command{
-	Use:   "frontend",
-	Short: "部署前端",
-	RunE: func(c *cobra.Command, args []string) error {
-		container := c.GetContainer()
+// // deployFrontendCommand 部署前端
+// var deployFrontendCommand = &cobra.Command{
+// 	Use:   "frontend",
+// 	Short: "部署前端",
+// 	RunE: func(c *cobra.Command, args []string) error {
+// 		container := c.GetContainer()
 
-		// 创建部署文件夹
-		deployFolder, err := createDeployFolder(container)
-		if err != nil {
-			return err
-		}
+// 		// 创建部署文件夹
+// 		deployFolder, err := createDeployFolder(container)
+// 		if err != nil {
+// 			return err
+// 		}
 
-		// 编译前端到部署文件夹
-		if err := deployBuildFrontend(c, deployFolder); err != nil {
-			return err
-		}
+// 		// 编译前端到部署文件夹
+// 		if err := deployBuildFrontend(c, deployFolder); err != nil {
+// 			return err
+// 		}
 
-		// 上传部署文件夹并执行对应的shell
-		return deployUploadAction(deployFolder, container, "frontend")
-	},
-}
+// 		// 上传部署文件夹并执行对应的shell
+// 		return deployUploadAction(deployFolder, container, "frontend")
+// 	},
+// }
 
 // deployBackendCommand 部署后端
 var deployBackendCommand = &cobra.Command{
@@ -96,10 +97,10 @@ var deployAllCommand = &cobra.Command{
 			return err
 		}
 
-		// 编译前端
-		if err := deployBuildFrontend(c, deployFolder); err != nil {
-			return err
-		}
+		// // 编译前端
+		// if err := deployBuildFrontend(c, deployFolder); err != nil {
+		// 	return err
+		// }
 
 		// 编译后端
 		if err := deployBuildBackend(c, deployFolder); err != nil {

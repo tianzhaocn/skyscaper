@@ -1,9 +1,10 @@
 package config
 
 import (
-	"github.com/gohade/hade/framework/contract"
 	"path/filepath"
+
 	"github.com/tianzhaocn/skyscraper/framework"
+	"github.com/tianzhaocn/skyscraper/framework/containerService/contract"
 )
 
 type ConfigProvider struct{}

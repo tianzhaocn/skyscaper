@@ -1,12 +1,13 @@
 package services
 
 import (
-	"github.com/tianzhaocn/skyscraper/framework"
-	"github.com/tianzhaocn/skyscraper/framework/containerService/contract"
-	"github.com/gohade/hade/framework/util"
-	"github.com/pkg/errors"
 	"os"
 	"path/filepath"
+
+	"github.com/pkg/errors"
+	"github.com/tianzhaocn/skyscraper/framework"
+	"github.com/tianzhaocn/skyscraper/framework/containerService/contract"
+	"github.com/tianzhaocn/skyscraper/framework/utils"
 )
 
 type SingleLog struct {
@@ -37,7 +38,7 @@ func NewSingleLog(params ...interface{}) (interface{}, error) {
 		folder = configService.GetString("log.folder")
 	}
 	log.folder = folder
-	if !util.Exists(folder) {
+	if !utils.Exists(folder) {
 		os.MkdirAll(folder, os.ModePerm)
 	}
 

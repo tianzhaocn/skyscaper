@@ -2,12 +2,13 @@ package ssh
 
 import (
 	"context"
-	"golang.org/x/crypto/ssh"
-	"golang.org/x/crypto/ssh/knownhosts"
 	"io/ioutil"
+	"time"
+
 	"github.com/tianzhaocn/skyscraper/framework"
 	"github.com/tianzhaocn/skyscraper/framework/containerService/contract"
-	"time"
+	"golang.org/x/crypto/ssh"
+	"golang.org/x/crypto/ssh/knownhosts"
 )
 
 // GetBaseConfig 读取database.yaml根目录结构
@@ -34,7 +35,7 @@ func WithConfigPath(configPath string) contract.SSHOption {
 		conf := configService.GetStringMapString(configPath)
 		// 读取config配置
 		/*
-		   		    #host: localhost # ip地址
+		   		    #host: 127.0.0.1 # ip地址
 		               #port: 3306 # 端口
 		               #username: jianfengye # 用户名
 		               #password: "123456789" # 密码

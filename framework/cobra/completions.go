@@ -18,7 +18,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"sync"
+
+	"github.com/funny/debug/sync"
 
 	"github.com/spf13/pflag"
 )

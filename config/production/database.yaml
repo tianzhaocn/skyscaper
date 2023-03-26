@@ -7,7 +7,7 @@ mysql:
 
 default:
     driver: mysql
-    hostname: localhost 
+    hostname: 127.0.0.1 
     database: hade
     username: root
     password: "123456"

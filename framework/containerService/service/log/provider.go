@@ -1,12 +1,13 @@
 package log
 
 import (
-	"github.com/gohade/hade/framework/contract"
-	"github.com/gohade/hade/framework/provider/log/formatter"
-	"github.com/gohade/hade/framework/provider/log/services"
 	"io"
-	"github.com/tianzhaocn/skyscraper/framework"
 	"strings"
+
+	"github.com/tianzhaocn/skyscraper/framework"
+	"github.com/tianzhaocn/skyscraper/framework/containerService/contract"
+	"github.com/tianzhaocn/skyscraper/framework/containerService/service/log/formatter"
+	"github.com/tianzhaocn/skyscraper/framework/containerService/service/log/services"
 )
 
 // LogServiceProvider 服务提供者
@@ -31,7 +32,7 @@ func (l *LogServiceProvider) Register(c framework.Container) framework.NewInstan
 		tcs, err := c.Make(contract.ConfigKey)
 		if err != nil {
 			// 默认使用console
-			return services.NewHadeConsoleLog
+			return services.NewConsoleLog
 		}
 
 		cs := tcs.(contract.Config)
@@ -41,15 +42,15 @@ func (l *LogServiceProvider) Register(c framework.Container) framework.NewInstan
 	// 根据driver的配置项确定
 	switch l.Driver {
 	case "single":
-		return services.NewHadeSingleLog
+		return services.NewSingleLog
 	case "rotate":
-		return services.NewHadeRotateLog
+		return services.NewRotateLog
 	case "console":
-		return services.NewHadeConsoleLog
+		return services.NewConsoleLog
 	case "custom":
-		return services.NewHadeCustomLog
+		return services.NewCustomLog
 	default:
-		return services.NewHadeConsoleLog
+		return services.NewConsoleLog
 	}
 }
 

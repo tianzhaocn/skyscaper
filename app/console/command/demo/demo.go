@@ -1,11 +1,16 @@
 package demo
 
-//var DemoCommand = &cobra.Command{
-//	Use:   "demo",
-//	Short: "demo",
-//	RunE: func(c *cobra.Command, args []string) error {
-//		container := util.GetContainer(c.Root())
-//		log.Println(container)
-//		return nil
-//	},
-//}
+import (
+	"fmt"
+
+	"github.com/tianzhaocn/skyscraper/framework/cobra"
+)
+
+var DemoCommand = &cobra.Command{
+	Use:   "demo",
+	Short: "demo",
+	RunE: func(c *cobra.Command, args []string) error {
+		fmt.Println("hello skyscrapers!!")
+		return nil
+	},
+}
