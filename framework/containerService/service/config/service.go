@@ -88,13 +88,8 @@ func NewConfig(params ...interface{}) (interface{}, error) {
 	envFolder := params[1].(string)
 	envMaps := params[2].(map[string]string)
 
-	// 检查文件夹是否存在
-	if _, err := os.Stat(envFolder); os.IsNotExist(err) {
-		return nil, errors.New("folder " + envFolder + " not exist: " + err.Error())
-	}
-
 	// 实例化
-	hadeConf := &Config{
+	Conf := &Config{
 		c:        container,
 		folder:   envFolder,
 		envMaps:  envMaps,
@@ -104,6 +99,13 @@ func NewConfig(params ...interface{}) (interface{}, error) {
 		lock:     sync.RWMutex{},
 	}
 
+	// 检查文件夹是否存在
+	if _, err := os.Stat(envFolder); os.IsNotExist(err) {
+		// 这里修改成为不返回错误，是让new方法可以通过
+		return Conf, nil
+		//return nil, errors.New("folder " + envFolder + " not exist: " + err.Error())
+	}
+
 	// 读取每个文件
 	files, err := ioutil.ReadDir(envFolder)
 	if err != nil {
@@ -111,7 +113,7 @@ func NewConfig(params ...interface{}) (interface{}, error) {
 	}
 	for _, file := range files {
 		fileName := file.Name()
-		err := hadeConf.loadConfigFile(envFolder, fileName)
+		err := Conf.loadConfigFile(envFolder, fileName)
 		if err != nil {
 			log.Println(err)
 			continue
@@ -149,15 +151,15 @@ func NewConfig(params ...interface{}) (interface{}, error) {
 
 					if ev.Op&fsnotify.Create == fsnotify.Create {
 						log.Println("创建文件 : ", ev.Name)
-						hadeConf.loadConfigFile(folder, fileName)
+						Conf.loadConfigFile(folder, fileName)
 					}
 					if ev.Op&fsnotify.Write == fsnotify.Write {
 						log.Println("写入文件 : ", ev.Name)
-						hadeConf.loadConfigFile(folder, fileName)
+						Conf.loadConfigFile(folder, fileName)
 					}
 					if ev.Op&fsnotify.Remove == fsnotify.Remove {
 						log.Println("删除文件 : ", ev.Name)
-						hadeConf.removeConfigFile(folder, fileName)
+						Conf.removeConfigFile(folder, fileName)
 					}
 				}
 			case err := <-watch.Errors:
@@ -169,7 +171,7 @@ func NewConfig(params ...interface{}) (interface{}, error) {
 		}
 	}()
 
-	return hadeConf, nil
+	return Conf, nil
 }
 
 // replace 表示使用环境变量maps替换context中的env(xxx)的环境变量

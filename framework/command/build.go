@@ -2,14 +2,15 @@ package command
 
 import (
 	"fmt"
-	"github.com/tianzhaocn/skyscraper/framework/cobra"
 	"log"
 	"os/exec"
+
+	"github.com/tianzhaocn/skyscraper/framework/cobra"
 )
 
 // build相关的命令
 func initBuildCommand() *cobra.Command {
-	//buildCommand.AddCommand(buildSelfCommand)
+	buildCommand.AddCommand(buildSelfCommand)
 	buildCommand.AddCommand(buildBackendCommand)
 	//buildCommand.AddCommand(buildFrontendCommand)
 	//buildCommand.AddCommand(buildAllCommand)
